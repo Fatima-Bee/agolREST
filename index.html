@@ -41,8 +41,9 @@
     "esri/layers/GraphicsLayer",
      "esri/Graphic",
      "esri/layers/FeatureLayer",
-     "esri/widgets/Editor"
-  ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, GraphicsLayer, Graphic, FeatureLayer, Editor) {
+     "esri/widgets/Editor",
+     "esri/widgets/Legend"
+  ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, GraphicsLayer, Graphic, FeatureLayer, Editor, Legend) {
 
     esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurN9CA4Z_pltmmtVA5PycbBd6Xh_gP36QMlUpOVbLusJYJ1Lsls6fT7M3k59AjBOhGuLwbAtYGbNGYI8P1AczbQA2fpbC6uks6oTxnkWgyyNoqWx5FNYW1j11ic7FtHw77w0O-EI3bPJ-YElfeb-LM1gF28T9Gtu0XRWpy9m0CGVgmXC-tMurlkO_cNOPceceFojFdv0wRE_9APrRvgKvOGdtQsMgtr86bdyrHx-hCHXYAT1_l9mao6ca";
 
@@ -62,20 +63,35 @@
       map.add(graphicsLayer);
 
       //adding the const for the feature layer
-const myAirports = new FeatureLayer({
- url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Visited_Airports_view/FeatureServer",
+const visitedAirports = new FeatureLayer({
+ url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/Visited_Airports/FeatureServer/0",
  
  //adding the popup here
  outFields: ["AirportCode"],
 
 });
 
+visitedAirports.renderer = {
+  type: "simple",
+  symbol: {
+    type: "text",
+    text: "❤",            // Unicode heart
+    color: "#990f02",
+    font: {
+      size: 20,
+      weight: "bold"
+    },
+    haloColor: "white",   // outline
+    haloSize: 1
+  }
+};
+
 //adding the feature layer to the map
-map.add(VisitedAirports);
+map.add(visitedAirports);
 
 // Set the point layer's LayerInfo
 const pointInfos = {
- layer: VisitedAirports
+ layer: visitedAirports
 }
 
 // Begin Editor constructor
@@ -187,7 +203,19 @@ const popupTemplate = {
 
   map.add(airports);
 
+    //legend
 
+     const legend = new Legend({
+        view,
+        layerInfos: [
+          { layer: visitedAirports, title: "Visited Airports" },
+          { layer: airports,        title: "US Airports" },
+          { layer: schools,        title: "Schools" }
+        ]
+      });
+
+//took me wayyyy to long to realize that I never added this part...
+     view.ui.add(legend, "top-left"); 
 
     //Basemap Gallery
 
@@ -209,7 +237,7 @@ const popupTemplate = {
   const searchWidget = new Search({
         view: view
       });
-      view.ui.add(searchWidget, "top-right"); 
+      view.ui.add(searchWidget, "bottom-left"); 
   
   });
 
